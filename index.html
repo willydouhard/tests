@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <script>
+    const module = {};
+    </script>
+
+    <script src="node_modules/vue/dist/vue.min.js"></script>
+
+    <script src="app.js"></script>
+
+    <script src="vue_components/cart.js"></script>
+
+    <script src="consts/payment_methods.js"></script>
+    <script src="consts/status.js"></script>
+
+    <script src="order/order_model.js"></script>
+    <script src="order/order.js"></script>
+
+</head>
+
+<body>
+
+    <div id="app">
+        <my-cart :user="user" ref="cart"></my-cart>
+        <ul>
+            <li v-for="product in products">
+                {{product.name}}
+                <button :id="product.name" v-on:click="addOneToCart(product)">Add</button>
+            </li>
+        </ul>
+        <button id="checkout" v-on:click="checkout()">Checkout</button>
+    </div>
+
+    <script>
+    const order = OrderFactory({ PaymentMethods, Status, OrderModel });
+
+    const myApp = new Vue({
+        el: '#app',
+        components: {
+            'my-cart': Cart
+        },
+        data: {
+            user: {
+                name: 'Willy'
+            },
+            products: [
+                { name: 'banana', u_price: 5},
+                { name: 'apple', u_price: 3},
+                { name: 'cherry', u_price: 1}
+            ]
+        },
+        created () {
+            Vue.nextTick( ()=> {
+                this.cart = this.$refs.cart;
+                this.cart.Order = order;
+            })
+        },
+        methods: {
+            addOneToCart(product) {
+                product.qty = 1;
+                this.cart.add(product);
+            },
+            checkout() {
+                this.cart.checkout()
+                .then( (payment)=> this.payment = payment )
+                .catch( (err)=> this.paymentErr = err )
+            }
+        }
+    })
+    </script>
+</body>
+
+</html>
