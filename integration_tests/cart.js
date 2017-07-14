@@ -6,7 +6,6 @@ module.exports = describe('#Cart', function() {
 
         client.click('#cherry')
         .execute(function() {
-            // browser context - you may not access client or console
             return myApp.cart.items.get('cherry').qty;
         })
         .then( (res)=> {
@@ -14,5 +13,18 @@ module.exports = describe('#Cart', function() {
             done();
         })
     });
+
+    it('should checkout properly', function(done) {
+        this.timeout(2300);
+        client.click('#checkout')
+        .pause(2000)
+        .execute(function() {
+            return myApp.payment;
+        })
+        .then( (res)=> {
+            res.value.should.be.deep.equal( {amount: 1, status: 'payed', method: 'credit card'} )
+            done();
+        })
+    })
 
 });
